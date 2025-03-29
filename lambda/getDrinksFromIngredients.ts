@@ -27,11 +27,23 @@ export async function getDrinks(event: APIGatewayProxyEvent, context: Context): 
             recipeMap.get(drinkId)?.push({ingredient_id: item.ingredient_id, quantity: item.quantity});
         });
 
-        // Filter drinks that contain ALL the requested ingredients
+        // Filter drinks where ALL their ingredients are in the provided ingredient list
         const matchingDrinks = Array.from(recipeMap.entries()).filter(([_, ingredients]) => {
-            const availableIds = ingredients.map(i => i.ingredient_id);
-            return ingredientList.every(id => availableIds.includes(id));
+            const requiredIngredients = new Set(ingredients.map(i => i.ingredient_id)); // Ingredients needed for this drink
+            const providedIngredients = new Set(ingredientList); // Ingredients user has
+
+            // Check if ALL required ingredients exist in the provided ingredients list
+            return [...requiredIngredients].every(id => providedIngredients.has(id));
         });
+
+        // If no matching drinks, return an empty response early
+        if (matchingDrinks.length === 0) {
+            return {
+                statusCode: 200,
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ drinks: [] })  // Return empty drinks list
+            };
+        }
 
         const matchingDrinkIds = matchingDrinks.map(([drinkId]) => drinkId);
         console.log('Matching drink IDs:', matchingDrinkIds);
