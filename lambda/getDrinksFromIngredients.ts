@@ -1,12 +1,11 @@
 import { APIGatewayProxyEvent, Context, APIGatewayProxyResult } from 'aws-lambda';
 import * as AWS from "aws-sdk";
 const dynamoDB = new AWS.DynamoDB.DocumentClient();
-const drinksTableName = process.env.DRINKS_TABLE_NAME!;
-const ingredientsTableName = process.env.INGREDIENTS_TABLE_NAME!;
-const recipesTableName = process.env.RECIPES_TABLE_NAME!;
 
 export async function getDrinks(event: APIGatewayProxyEvent, context: Context): Promise<APIGatewayProxyResult> {
-
+    const drinksTableName = process.env.DRINKS_TABLE_NAME!;
+    const ingredientsTableName = process.env.INGREDIENTS_TABLE_NAME!;
+    const recipesTableName = process.env.RECIPES_TABLE_NAME!;
     // invoke like /api/getDrinks?ingredients=4,5,15 should be Kamikaze
 
     const ingredientParam = event.queryStringParameters?.ingredients;
@@ -14,7 +13,6 @@ export async function getDrinks(event: APIGatewayProxyEvent, context: Context): 
 
     try {
         const ingredientList = ingredientParam.split(',').map(Number).filter(n => !isNaN(n));
-        console.log('Looking for drinks with ingredients:', ingredientList);
 
         // Scan Recipe Table to collect drink-ingredient-amount mappings
         const recipeData = await dynamoDB.scan({TableName: recipesTableName}).promise();
@@ -46,18 +44,17 @@ export async function getDrinks(event: APIGatewayProxyEvent, context: Context): 
         }
 
         const matchingDrinkIds = matchingDrinks.map(([drinkId]) => drinkId);
-        console.log('Matching drink IDs:', matchingDrinkIds);
 
         // Batch get drink names
         const drinkBatch = await dynamoDB.batchGet({
             RequestItems: {
-                [drinksTableName]: {Keys: matchingDrinkIds.map(id => ({drink_id: id}))}
+                [drinksTableName]: {Keys: matchingDrinkIds.map(drink_id => ({drink_id: drink_id}))}
             }
         }).promise();
 
-        const drinksNameMap = new Map<number, string>();
+        const drinksNameMap = new Map<number, [string, string]>();
         drinkBatch.Responses?.[drinksTableName]?.forEach(drink => {
-            drinksNameMap.set(drink.drink_id, drink.name);
+            drinksNameMap.set(drink.drink_id, [drink.name, drink.instructions]);
         });
 
         // Collect all unique ingredient IDs to fetch their names
@@ -66,7 +63,7 @@ export async function getDrinks(event: APIGatewayProxyEvent, context: Context): 
 
         const ingredientBatch = await dynamoDB.batchGet({
             RequestItems: {
-                [ingredientsTableName]: {Keys: Array.from(allIngredientIds).map(id => ({ingredient_id: id}))}
+                [ingredientsTableName]: {Keys: Array.from(allIngredientIds).map(ingredient_id => ({ingredient_id: ingredient_id}))}
             }
         }).promise();
 
@@ -78,7 +75,8 @@ export async function getDrinks(event: APIGatewayProxyEvent, context: Context): 
         // Build response
         const drinks = matchingDrinks.map(([drinkId, ingredients]) => ({
             drink_id: drinkId,
-            drink_name: drinksNameMap.get(drinkId) || 'Unknown',
+            drink_name: drinksNameMap.get(drinkId)?.[0] || 'Unknown',
+            instructions: drinksNameMap.get(drinkId)?.[1] || '',
             ingredients: ingredients.map(ing => ({
                 ingredient_id: ing.ingredient_id,
                 name: ingredientNameMap.get(ing.ingredient_id) || 'Unknown',
@@ -90,7 +88,7 @@ export async function getDrinks(event: APIGatewayProxyEvent, context: Context): 
             statusCode: 200,
             body: JSON.stringify({drinks})
         };
-    }catch (err) {
+    } catch (err) {
         console.error('Error fetching drinks from ingredients:', err);
         return { statusCode: 500, body: 'Internal Server Error' };
     }

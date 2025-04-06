@@ -1,12 +1,10 @@
 import { APIGatewayProxyEvent, Context, APIGatewayProxyResult } from 'aws-lambda';
 import * as AWS from "aws-sdk";
 const dynamoDB = new AWS.DynamoDB.DocumentClient();
-const drinksTableName = process.env.DRINKS_TABLE_NAME!;
-const ingredientsTableName = process.env.INGREDIENTS_TABLE_NAME!;
-const recipesTableName = process.env.RECIPES_TABLE_NAME!;
 
 export async function getIngredients(event: APIGatewayProxyEvent, context: Context): Promise<APIGatewayProxyResult> {
-
+    const ingredientsTableName = process.env.INGREDIENTS_TABLE_NAME!;
+    const recipesTableName = process.env.RECIPES_TABLE_NAME!;
     // invoke like /api/getIngredients?drink_id=1 should be Long Island Iced Tea
 
     const drinkId = Number(event.queryStringParameters?.drink_id);
