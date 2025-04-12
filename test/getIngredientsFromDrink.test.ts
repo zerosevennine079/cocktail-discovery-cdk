@@ -60,7 +60,27 @@ describe('getIngredients Lambda Handler', () => {
         expect(result.body).toBe('Invalid or missing drink_id');
     });
 
+    it('should return 404 if no drink is found for drink_id', async () => {
+        mockDynamoDB.query.mockReturnValueOnce({
+            promise: jest.fn().mockResolvedValue({ Items: [] }),
+        } as any);
+
+        const event = createEvent('1');
+        const result = await getIngredients(event, mockContext);
+
+        expect(result.statusCode).toBe(404);
+        expect(result.body).toBe('No drink found for this drink_id');
+    });
+
     it('should return 404 if no recipe is found for drink_id', async () => {
+        mockDynamoDB.query.mockReturnValueOnce({
+            promise: jest.fn().mockResolvedValue({
+                Items: [
+                    { drink_id: 1, instructions: 'Shake' },
+                ],
+            }),
+        } as any);
+
         mockDynamoDB.query.mockReturnValueOnce({
             promise: jest.fn().mockResolvedValue({ Items: [] }),
         } as any);
@@ -73,6 +93,14 @@ describe('getIngredients Lambda Handler', () => {
     });
 
     it('should return ingredients for a valid drink_id', async () => {
+        mockDynamoDB.query.mockReturnValueOnce({
+            promise: jest.fn().mockResolvedValue({
+                Items: [
+                    { drink_id: 1, instructions: 'Shake' },
+                ],
+            }),
+        } as any);
+
         mockDynamoDB.query.mockReturnValueOnce({
             promise: jest.fn().mockResolvedValue({
                 Items: [
@@ -106,6 +134,14 @@ describe('getIngredients Lambda Handler', () => {
     });
 
     it('should handle missing ingredient names gracefully', async () => {
+        mockDynamoDB.query.mockReturnValueOnce({
+            promise: jest.fn().mockResolvedValue({
+                Items: [
+                    { drink_id: 1, instructions: 'Shake' },
+                ],
+            }),
+        } as any);
+
         mockDynamoDB.query.mockReturnValueOnce({
             promise: jest.fn().mockResolvedValue({
                 Items: [{ drink_id: 1, ingredient_id: 103, quantity: '1.5 oz' }],

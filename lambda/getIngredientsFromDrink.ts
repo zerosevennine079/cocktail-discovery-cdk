@@ -5,6 +5,7 @@ const dynamoDB = new AWS.DynamoDB.DocumentClient();
 export async function getIngredients(event: APIGatewayProxyEvent, context: Context): Promise<APIGatewayProxyResult> {
     const ingredientsTableName = process.env.INGREDIENTS_TABLE_NAME!;
     const recipesTableName = process.env.RECIPES_TABLE_NAME!;
+    const drinksTableName = process.env.DRINKS_TABLE_NAME!;
     // invoke like /api/getIngredients?drink_id=1 should be Long Island Iced Tea
 
     const drinkId = Number(event.queryStringParameters?.drink_id);
@@ -13,6 +14,18 @@ export async function getIngredients(event: APIGatewayProxyEvent, context: Conte
     }
 
     try {
+        const drinkResult = await dynamoDB.query({
+            TableName: drinksTableName,
+            KeyConditionExpression: 'drink_id = :drinkId',
+            ExpressionAttributeValues: { ':drinkId': drinkId }
+        }).promise();
+
+        if (!drinkResult.Items || drinkResult.Items.length === 0) {
+            return { statusCode: 404, body: 'No drink found for this drink_id' };
+        }
+
+        const instructions = drinkResult.Items.map(item => item.instructions)[0];
+
         const recipeResult = await dynamoDB.query({
             TableName: recipesTableName,
             KeyConditionExpression: 'drink_id = :drinkId',
@@ -44,7 +57,7 @@ export async function getIngredients(event: APIGatewayProxyEvent, context: Conte
 
         return {
             statusCode: 200,
-            body: JSON.stringify({ drink_id: drinkId, ingredients })
+            body: JSON.stringify({ drink_id: drinkId, instructions, ingredients })
         };
 
     } catch (err) {
