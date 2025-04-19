@@ -57,6 +57,14 @@ export async function handler(event: any, context: any) {
         const drinks = [
             {drink_id: 1, name: "Long Island Iced Tea", instructions: "Garnish with Lemon"},
             {drink_id: 2, name: "Kamikaze", instructions: "Shake; Strain into chilled glass; Garnish with Lime"},
+            {drink_id: 3, name: "Tom Collins", instructions: "Shake; Splash of soda water; Garnish with orange and cherry"},
+            {drink_id: 4, name: "Alabama Slammer", instructions: "Shake; Garnish with orange"},
+            {drink_id: 5, name: "Gin Martini", instructions: "Stir (unless it's for James Bond); Strain into chilled glass; Garnish with Lemon Twist or Olives"},
+            {drink_id: 6, name: "Vodka Martini", instructions: "Stir; Strain into chilled glass; Garnish with Lemon Twist or Olives"},
+            {drink_id: 7, name: "Screwdriver", instructions: "Garnish with Orange or Lime"},
+            {drink_id: 8, name: "Bay Breeze", instructions: "Garnish with Lime"},
+            {drink_id: 9, name: "Cosmopolitan", instructions: "Stir; Strain into chilled glass; Garnish with Lime"},
+            {drink_id: 10, name: "Old Fashioned", instructions: "Muddle together in glass; Splash with soda water; Stir; Garnish with Stemless Maraschino Cherry and Orange Slice"}
         ];
 
         for (const drink of drinks) {
@@ -81,6 +89,11 @@ export async function handler(event: any, context: any) {
             {ingredient_id: 14, name: "Orange Juice"},
             {ingredient_id: 15, name: "Lime Juice"},
             {ingredient_id: 16, name: "Sour Mix"},
+            {ingredient_id: 17, name: "Vermouth"},
+            {ingredient_id: 18, name: "Cranberry Juice"},
+            {ingredient_id: 19, name: "Pineapple Juice"},
+            {ingredient_id: 20, name: "Bitters"},
+            {ingredient_id: 21, name: "Sugar"},
         ];
 
         for (const ingredient of ingredients) {
@@ -99,6 +112,28 @@ export async function handler(event: any, context: any) {
             {drink_id: 2, ingredient_id: 4, quantity: "2 oz"},
             {drink_id: 2, ingredient_id: 5, quantity: "1/2 oz"},
             {drink_id: 2, ingredient_id: 15, quantity: "1 oz"},
+            {drink_id: 3, ingredient_id: 8, quantity: "2 oz"},
+            {drink_id: 3, ingredient_id: 16, quantity: "4 oz"},
+            {drink_id: 4, ingredient_id: 7, quantity: "1/2 oz"},
+            {drink_id: 4, ingredient_id: 5, quantity: "1/2 oz"},
+            {drink_id: 4, ingredient_id: 6, quantity: "1/2 oz"},
+            {drink_id: 4, ingredient_id: 14, quantity: "4 oz"},
+            {drink_id: 5, ingredient_id: 8, quantity: "2 oz"},
+            {drink_id: 5, ingredient_id: 17, quantity: "1/2 oz"},
+            {drink_id: 6, ingredient_id: 4, quantity: "2 oz"},
+            {drink_id: 6, ingredient_id: 17, quantity: "1/2 oz"},
+            {drink_id: 7, ingredient_id: 4, quantity: "2 oz"},
+            {drink_id: 7, ingredient_id: 14, quantity: "4 oz"},
+            {drink_id: 8, ingredient_id: 4, quantity: "2 oz"},
+            {drink_id: 8, ingredient_id: 18, quantity: "2 oz"},
+            {drink_id: 8, ingredient_id: 19, quantity: "2 oz"},
+            {drink_id: 9, ingredient_id: 4, quantity: "2 oz"},
+            {drink_id: 9, ingredient_id: 5, quantity: "1/2 oz"},
+            {drink_id: 9, ingredient_id: 15, quantity: "1/2 oz"},
+            {drink_id: 9, ingredient_id: 18, quantity: "1/2 oz"},
+            {drink_id: 10, ingredient_id: 1, quantity: "2 oz"},
+            {drink_id: 10, ingredient_id: 20, quantity: "4 dashes"},
+            {drink_id: 10, ingredient_id: 21, quantity: "1/2 tsp"}
         ];
 
         for (const recipe of recipes) {
